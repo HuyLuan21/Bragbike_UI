@@ -26,6 +26,10 @@ android {
         // Inject biến vào BuildConfig
         buildConfigField("String", "API_KEY", "\"${localProps["API_KEY"] ?: ""}\"")
         buildConfigField("String", "BASE_URL", "\"${localProps["BASE_URL"] ?: ""}\"")
+        
+        // Mapbox Access Token từ local.properties
+        val mapboxToken = localProps["MAPBOX_ACCESS_TOKEN"]?.toString() ?: ""
+        resValue("string", "mapbox_access_token", mapboxToken)
     }
 
     buildTypes {
@@ -43,9 +47,11 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-    // Bắt buộc để dùng BuildConfig với AGP 8+
+    // Bắt buộc để dùng các tính năng nâng cao trong AGP 8+
     buildFeatures {
         buildConfig = true
+        viewBinding = true
+        resValues = true
     }
 }
 
@@ -61,4 +67,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
+    
+    // Mapbox
+    implementation(libs.mapbox.android)
+    implementation(libs.mapbox.sdk.services)
+    implementation(libs.mapbox.sdk.turf)
 }

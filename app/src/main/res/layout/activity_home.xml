@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="80dp">
+        android:paddingBottom="120dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -88,9 +88,13 @@
 
             <!-- Search Bar -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/cvSearch"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginBottom="24dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="4dp">
@@ -268,8 +272,11 @@
 
                 <!-- Ô tô -->
                 <LinearLayout
+                    android:id="@+id/btnServiceCar"
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical">
 
@@ -299,8 +306,11 @@
 
                 <!-- Xe máy -->
                 <LinearLayout
+                    android:id="@+id/btnServiceBike"
                     android:layout_width="0dp"
                     android:layout_columnWeight="1"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:gravity="center"
                     android:orientation="vertical">
 
