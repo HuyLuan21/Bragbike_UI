@@ -60,11 +60,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
-        // Trong onCreate của MainActivity.java
-        findViewById(R.id.tvForgotPassword).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
-        });
     }
 
     private void login(String identifier, String password) {
@@ -89,7 +84,11 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Chào mừng " + name, Toast.LENGTH_LONG).show();
                     Log.d("LOGIN_TEST", "Thành công! Token: " + data.getToken());
 
-                    // Chuyển sang màn hình chính (Ví dụ: HomeActivity) nếu cần
+                    // Đăng nhập thành công, chuyển sang HomeActivity
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish(); // Đóng màn hình đăng nhập
+
                 } else {
                     Toast.makeText(MainActivity.this, "Đăng nhập thất bại (Lỗi " + response.code() + ")", Toast.LENGTH_SHORT).show();
                     Log.e("LOGIN_TEST", "Lỗi: " + response.message());
