@@ -8,7 +8,8 @@ material = "1.13.0"
 activity = "1.13.0"
 constraintlayout = "2.2.1"
 mapbox = "11.22.0"
-mapbox-services = "6.15.0"
+mapbox-services = "7.3.0"
+gson = "2.10.1"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -21,6 +22,7 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 mapbox-android = { group = "com.mapbox.maps", name = "android-ndk27", version.ref = "mapbox" }
 mapbox-sdk-services = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-services", version.ref = "mapbox-services" }
 mapbox-sdk-turf = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-turf", version.ref = "mapbox-services" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

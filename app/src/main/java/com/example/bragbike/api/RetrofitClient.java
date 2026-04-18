@@ -1,10 +1,11 @@
-package com.example.bragbike.api; // ← phải có dòng này
+package com.example.bragbike.api;
 
 import android.content.Context;
 import com.example.bragbike.BuildConfig;
 import com.example.bragbike.utils.TokenManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +18,12 @@ public class RetrofitClient {
     private RetrofitClient(Context context) {
         tokenManager = new TokenManager(context);
 
+        // Khởi tạo HttpLoggingInterceptor để xem log API
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+
         OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(logging) // Thêm logging vào đầu danh sách interceptor
                 .addInterceptor(chain -> {
                     Request original = chain.request();
                     String token = tokenManager.getToken();

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/slate_50">
 
     <!-- Map Section -->
     <com.mapbox.maps.MapView
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Top Controls -->
+    <!-- Top Overlay: Search Card -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,80 +21,110 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBack"
             style="@style/Widget.MaterialComponents.Button.Icon"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:backgroundTint="@color/white"
             android:insetLeft="0dp"
             android:insetTop="0dp"
             android:insetRight="0dp"
             android:insetBottom="0dp"
-            app:cornerRadius="24dp"
+            app:cornerRadius="22dp"
             app:elevation="4dp"
             app:icon="@drawable/arrow_back_24px"
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconTint="@color/slate_900" />
 
-        <!-- Search / Route Info -->
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/searchCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/btnBack"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            android:layout_marginTop="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp"
+            app:strokeWidth="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:src="@drawable/dot_blue" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:layout_marginVertical="4dp"
+                        android:background="@color/slate_200" />
+
+                    <ImageView
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:src="@drawable/dot_yellow" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="12dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
                     <EditText
                         android:id="@+id/etOrigin"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
                         android:background="@null"
-                        android:hint="Vị trí của bạn"
+                        android:hint="Vị trí đón"
                         android:inputType="text"
-                        android:paddingVertical="4dp"
+                        android:maxLines="1"
+                        android:imeOptions="actionNext"
                         android:textColor="@color/slate_900"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textSize="14sp" />
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
                         android:background="@color/slate_100" />
 
                     <EditText
                         android:id="@+id/etDestination"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
                         android:background="@null"
                         android:hint="Bạn muốn đi đâu?"
                         android:inputType="text"
-                        android:paddingVertical="4dp"
+                        android:maxLines="1"
+                        android:imeOptions="actionSearch"
                         android:textColor="@color/slate_900"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:id="@+id/btnSwap"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:layout_gravity="center_vertical"
+                    android:padding="6dp"
                     android:src="@drawable/swap_vert_24px"
-                    app:tint="@color/primary" />
+                    app:tint="@color/slate_400" />
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
     </RelativeLayout>
 
     <!-- Bottom Sheet -->
@@ -103,18 +133,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_bottom_sheet"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="300dp"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <LinearLayout
+            android:id="@+id/layoutServiceContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="20dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <View
-                android:layout_width="40dp"
+                android:layout_width="36dp"
                 android:layout_height="4dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="16dp"
@@ -129,15 +162,16 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- Ride Options -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/optionEconomy"
+            <!-- Option: Bike -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/optionBike"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/primary_light">
+                app:strokeColor="@color/primary"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -147,9 +181,9 @@
                     android:padding="16dp">
 
                     <ImageView
-                        android:layout_width="60dp"
+                        android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:src="@drawable/directions_car_24px"
+                        android:src="@drawable/moped_24px"
                         app:tint="@color/primary" />
 
                     <LinearLayout
@@ -162,37 +196,41 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tiết kiệm"
+                            android:text="BragBike"
                             android:textColor="@color/slate_900"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvBikeInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="3 phút • Đến lúc 15:42"
+                            android:text="Tiết kiệm • -- phút"
                             android:textColor="@color/slate_500"
                             android:textSize="12sp" />
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvBikePrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="24.500đ"
+                        android:text="-- đ"
                         android:textColor="@color/slate_900"
-                        android:textSize="18sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/optionComfort"
+            <!-- Option: Car -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/optionCar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/white">
+                app:strokeColor="@color/primary"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -202,7 +240,7 @@
                     android:padding="16dp">
 
                     <ImageView
-                        android:layout_width="60dp"
+                        android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:src="@drawable/directions_car_24px"
                         app:tint="@color/slate_400" />
@@ -217,42 +255,47 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Thoải mái"
+                            android:text="BragCar"
                             android:textColor="@color/slate_900"
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvCarInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="5 phút • Đến lúc 15:45"
+                            android:text="Thoải mái • -- phút"
                             android:textColor="@color/slate_500"
                             android:textSize="12sp" />
                     </LinearLayout>
+
                     <TextView
+                        android:id="@+id/tvCarPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="32.000đ"
+                        android:text="-- đ"
                         android:textColor="@color/slate_900"
-                        android:textSize="18sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </com.google.android.material.card.MaterialCardView>
 
-            <!-- Payment Method -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="12dp"
+                android:background="@color/slate_100" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirm"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
-                android:text="Xác nhận đặt xe"
+                android:layout_height="56dp"
+                android:text="Đặt BragBike"
                 android:textAllCaps="false"
-                app:backgroundTint="@color/primary"
-                app:iconGravity="end"
-                app:iconTint="@color/white"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                app:cornerRadius="32dp" />
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="12dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

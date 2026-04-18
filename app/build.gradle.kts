@@ -2,9 +2,11 @@ import java.util.Properties
 
 // Đọc local.properties
 val localProps = Properties()
-val localPropsFile = rootProject.file("local.properties")
+val localPropsFile = rootProject.projectDir.resolve("local.properties")
 if (localPropsFile.exists()) {
     localProps.load(localPropsFile.inputStream())
+} else {
+    println("local.properties NOT FOUND at: ${localPropsFile.absolutePath}")
 }
 plugins {
     alias(libs.plugins.android.application)
@@ -30,6 +32,7 @@ android {
         // Mapbox Access Token từ local.properties
         val mapboxToken = localProps["MAPBOX_ACCESS_TOKEN"]?.toString() ?: ""
         resValue("string", "mapbox_access_token", mapboxToken)
+
     }
 
     buildTypes {
@@ -53,6 +56,12 @@ android {
         viewBinding = true
         resValues = true
     }
+
+    configurations.all {
+        resolutionStrategy {
+            force("com.google.code.gson:gson:2.10.1")
+        }
+    }
 }
 
 dependencies {
@@ -67,11 +76,13 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
+    implementation(libs.gson)
 
     // Google Play Services Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
     // Mapbox
+    implementation("com.mapbox.maps:android-ndk27:11.22.0")
     implementation(libs.mapbox.android)
     implementation(libs.mapbox.sdk.services)
     implementation(libs.mapbox.sdk.turf)
