@@ -2,6 +2,8 @@ package com.example.bragbike.api;
 
 import com.example.bragbike.model.LoginRequest;
 import com.example.bragbike.model.LoginResponse;
+import com.example.bragbike.model.PeakHour;
+import com.example.bragbike.model.VehiclePricing;
 import retrofit2.Call;
 import retrofit2.http.*;
 import java.util.List;
@@ -46,35 +48,23 @@ public interface ApiService {
     Call<Map<String, Object>> updateAvatar(@Body Map<String, Object> body);
 
     // ═══════════════════════════════════════
-    //  3. DRIVERS
+    //  3. PRICING & ESTIMATION
     // ═══════════════════════════════════════
-    @POST("drivers/apply")
-    Call<Map<String, Object>> applyDriver(@Body Map<String, Object> body);
+    @GET("pricing")
+    Call<List<VehiclePricing>> getAllPricing();
 
-    @GET("drivers/me")
-    Call<Map<String, Object>> getMyDriverProfile();
+    @GET("pricing/peak-hours")
+    Call<List<PeakHour>> getPeakHours();
 
-    @GET("drivers/me/stats")
-    Call<Map<String, Object>> getMyDriverStats();
+    @GET("pricing/{vehicleType}")
+    Call<VehiclePricing> getPricingByType(@Path("vehicleType") String vehicleType);
 
-    @PATCH("drivers/me/online")
-    Call<Map<String, Object>> toggleOnline(@Body Map<String, Object> body);
+    @GET("pricing/calculate")
+    Call<Map<String, Object>> calculateFare(
+            @Query("vehicleType") String vehicleType,
+            @Query("distance") double distanceKm
+    );
 
-    @PATCH("drivers/me/location")
-    Call<Map<String, Object>> updateLocation(@Body Map<String, Object> body);
-
-    @GET("drivers/available-rides")
-    Call<List<Map<String, Object>>> getAvailableRides();
-
-    @GET("drivers/me/history")
-    Call<List<Map<String, Object>>> getMyRideHistory();
-
-    @GET("drivers/{id}")
-    Call<Map<String, Object>> getDriverPublic(@Path("id") int driverId);
-
-    // ═══════════════════════════════════════
-    //  4. RIDES
-    // ═══════════════════════════════════════
     @GET("rides/estimate")
     Call<Map<String, Object>> estimateFare(
             @Query("pickup_lat") double pickupLat,
@@ -84,6 +74,7 @@ public interface ApiService {
             @Query("vehicle_type") String vehicleType
     );
 
+    // ... (Giữ nguyên các phần khác)
     @POST("rides")
     Call<Map<String, Object>> createRide(@Body Map<String, Object> body);
 
@@ -111,9 +102,6 @@ public interface ApiService {
     @POST("rides/{id}/cancel")
     Call<Map<String, Object>> cancelRide(@Path("id") int rideId, @Body Map<String, Object> body);
 
-    // ═══════════════════════════════════════
-    //  5. RATINGS
-    // ═══════════════════════════════════════
     @POST("ratings")
     Call<Map<String, Object>> createRating(@Body Map<String, Object> body);
 
@@ -123,9 +111,6 @@ public interface ApiService {
     @GET("ratings/driver/{driverId}")
     Call<List<Map<String, Object>>> getDriverRatings(@Path("driverId") int driverId);
 
-    // ═══════════════════════════════════════
-    //  6. REPORTS
-    // ═══════════════════════════════════════
     @POST("reports")
     Call<Map<String, Object>> createReport(@Body Map<String, Object> body);
 
@@ -135,9 +120,6 @@ public interface ApiService {
     @GET("reports/{id}")
     Call<Map<String, Object>> getReportById(@Path("id") int reportId);
 
-    // ═══════════════════════════════════════
-    //  7. NOTIFICATIONS
-    // ═══════════════════════════════════════
     @GET("notifications")
     Call<List<Map<String, Object>>> getMyNotifications(
             @Query("page") int page,

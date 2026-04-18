@@ -12,14 +12,19 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.bragbike.R;
+import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.MapboxService;
+import com.example.bragbike.api.RetrofitClient;
 import com.example.bragbike.databinding.ActivityBookingBinding;
+import com.example.bragbike.model.PeakHour;
+import com.example.bragbike.model.VehiclePricing;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -40,7 +45,12 @@ import com.mapbox.maps.plugin.animation.CameraAnimationsUtils;
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentPlugin;
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -67,6 +77,7 @@ public class BookingActivity extends AppCompatActivity {
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private SuggestionAdapter suggestionAdapter;
     private MapboxService mapboxService;
+    private ApiService apiService;
 
     private Point originPoint;
     private Point destinationPoint;
@@ -74,8 +85,10 @@ public class BookingActivity extends AppCompatActivity {
     private boolean isSearchingOrigin = true;
     private boolean isProgrammaticChange = false;
 
-    private final double pricePerKmBike = 5000; 
-    private final double pricePerKmCar = 12000;
+    // Dữ liệu cấu hình giá từ backend
+    private List<PeakHour> peakHoursList = new ArrayList<>();
+    private VehiclePricing bikePricing;
+    private VehiclePricing carPricing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +97,105 @@ public class BookingActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        apiService = RetrofitClient.getInstance(this).getApiService();
 
+        loadPricingConfigs(); // Tải cấu hình giá khi khởi tạo
         initMapboxRetrofit();
         initMap();
         setupBottomSheet();
         setupRecyclerView();
         setupClickListeners();
         setupSearchInput();
+    }
+
+    private void loadPricingConfigs() {
+        // Tải danh sách giờ cao điểm
+        apiService.getPeakHours().enqueue(new Callback<List<PeakHour>>() {
+            @Override
+            public void onResponse(Call<List<PeakHour>> call, Response<List<PeakHour>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    peakHoursList = response.body();
+                }
+            }
+            @Override
+            public void onFailure(Call<List<PeakHour>> call, Throwable t) {
+                Log.e("Booking", "Lỗi tải giờ cao điểm: " + t.getMessage());
+            }
+        });
+
+        // Tải cấu hình giá xe máy
+        apiService.getPricingByType("MOTORBIKE").enqueue(new Callback<VehiclePricing>() {
+            @Override
+            public void onResponse(Call<VehiclePricing> call, Response<VehiclePricing> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    bikePricing = response.body();
+                }
+            }
+            @Override
+            public void onFailure(Call<VehiclePricing> call, Throwable t) {
+                Log.e("Booking", "Lỗi tải giá MOTORBIKE: " + t.getMessage());
+            }
+        });
+
+        // Tải cấu hình giá ô tô
+        apiService.getPricingByType("CAR_4").enqueue(new Callback<VehiclePricing>() {
+            @Override
+            public void onResponse(Call<VehiclePricing> call, Response<VehiclePricing> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    carPricing = response.body();
+                }
+            }
+            @Override
+            public void onFailure(Call<VehiclePricing> call, Throwable t) {
+                Log.e("Booking", "Lỗi tải giá CAR_4: " + t.getMessage());
+            }
+        });
+    }
+
+    private PeakHour getActivePeakHour() {
+        if (peakHoursList == null || peakHoursList.isEmpty()) return null;
+
+        Calendar cal = Calendar.getInstance();
+        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        // Chuyển Calendar (CN=1, T2=2...) sang định dạng database (T2=1... CN=7)
+        int vnDayOfWeek = (dayOfWeek == Calendar.SUNDAY) ? 7 : dayOfWeek - 1;
+        
+        SimpleDateFormat timeFmt = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String nowTime = timeFmt.format(cal.getTime());
+
+        for (PeakHour ph : peakHoursList) {
+            if (!ph.isActive()) continue;
+            
+            if (ph.getDaysOfWeek().contains(String.valueOf(vnDayOfWeek))) {
+                if (nowTime.compareTo(ph.getStartTime()) >= 0 && nowTime.compareTo(ph.getEndTime()) <= 0) {
+                    return ph;
+                }
+            }
+        }
+        return null;
+    }
+
+    private double calculateFareOffline(VehiclePricing pricing, double distanceKm) {
+        if (pricing == null) return 0;
+
+        try {
+            double baseFare = pricing.getBaseFare();
+            double pricePerKm = pricing.getPricePerKm();
+            double total = baseFare + (distanceKm * pricePerKm);
+
+            PeakHour activePeak = getActivePeakHour();
+            if (activePeak != null) {
+                total *= pricing.getPeakHourMultiplier();
+            }
+            
+            // Áp dụng giá tối thiểu (Min Fare)
+            double finalFare = Math.max(total, pricing.getMinFare());
+
+            // Làm tròn về hàng nghìn (ví dụ: 136,067 -> 136,000)
+            return Math.floor(finalFare / 1000) * 1000;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     private void initMapboxRetrofit() {
@@ -247,7 +352,6 @@ public class BookingActivity extends AppCompatActivity {
         if (originPoint != null && destinationPoint != null) {
             getRoute(originPoint, destinationPoint);
         } else if (originPoint != null || destinationPoint != null) {
-            // Nếu mới chỉ chọn 1 trong 2 điểm, di chuyển camera tới điểm đó
             moveCameraToPoint(originPoint != null ? originPoint : destinationPoint);
         }
     }
@@ -308,16 +412,50 @@ public class BookingActivity extends AppCompatActivity {
 
     private void updatePrices(double distanceInMeters) {
         double distanceInKm = distanceInMeters / 1000.0;
-        long bikePrice = Math.round(distanceInKm * pricePerKmBike);
-        long carPrice = Math.round(distanceInKm * pricePerKmCar);
+        
+        PeakHour activePeak = getActivePeakHour();
+        String infoSuffix = (activePeak != null) ? " • " + activePeak.getName() : "";
 
-        if (bikePrice < 10000) bikePrice = 10000;
-        if (carPrice < 25000) carPrice = 25000;
+        binding.tvBikeInfo.setText(String.format(Locale.getDefault(), "Tiết kiệm • %.1f km%s", distanceInKm, infoSuffix));
+        binding.tvCarInfo.setText(String.format(Locale.getDefault(), "Thoải mái • %.1f km%s", distanceInKm, infoSuffix));
 
-        binding.tvBikePrice.setText(String.format(Locale.getDefault(), "%,dđ", bikePrice));
-        binding.tvCarPrice.setText(String.format(Locale.getDefault(), "%,dđ", carPrice));
-        binding.tvBikeInfo.setText(String.format(Locale.getDefault(), "Tiết kiệm • %.1f km", distanceInKm));
-        binding.tvCarInfo.setText(String.format(Locale.getDefault(), "Thoải mái • %.1f km", distanceInKm));
+        // Tính toán offline ngay tại app
+        double bikePrice = calculateFareOffline(bikePricing, distanceInKm);
+        double carPrice = calculateFareOffline(carPricing, distanceInKm);
+
+        if (bikePrice > 0) {
+            binding.tvBikePrice.setText(String.format(Locale.getDefault(), "%,.0fđ", bikePrice));
+        } else {
+            fetchPriceFromServer("MOTORBIKE", distanceInKm);
+        }
+
+        if (carPrice > 0) {
+            binding.tvCarPrice.setText(String.format(Locale.getDefault(), "%,.0fđ", carPrice));
+        } else {
+            fetchPriceFromServer("CAR_4", distanceInKm);
+        }
+    }
+
+    private void fetchPriceFromServer(String type, double distanceKm) {
+        apiService.calculateFare(type, distanceKm).enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Number fare = (Number) response.body().get("fare");
+                    if (fare != null) {
+                        // Làm tròn về hàng nghìn trước khi hiển thị
+                        double roundedFare = Math.floor(fare.doubleValue() / 1000) * 1000;
+                        if (type.equals("MOTORBIKE")) {
+                            binding.tvBikePrice.setText(String.format(Locale.getDefault(), "%,.0fđ", roundedFare));
+                        } else {
+                            binding.tvCarPrice.setText(String.format(Locale.getDefault(), "%,.0fđ", roundedFare));
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
+        });
     }
 
     private void setupBottomSheet() {
@@ -378,15 +516,29 @@ public class BookingActivity extends AppCompatActivity {
             fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                 if (location != null) {
                     originPoint = Point.fromLngLat(location.getLongitude(), location.getLatitude());
+                    
+                    // Cập nhật ô nhập liệu
                     isProgrammaticChange = true;
-                    binding.etOrigin.setText("Vị trí hiện tại");
+                    binding.etOrigin.setText("Vị trí của bạn");
                     isProgrammaticChange = false;
+                    
+                    // Di chuyển camera tới vị trí hiện tại
                     moveCameraToPoint(originPoint);
+                    
+                    // Hiển thị marker điểm đón
                     updateMarkerPositions();
                 }
             });
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            checkPermissionAndGetLocation();
         }
     }
 }

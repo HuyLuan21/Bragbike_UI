@@ -221,7 +221,7 @@
                             android:id="@+id/tvBikeInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tiết kiệm • -- phút"
+                            android:text="Xe máy • -- phút"
                             android:textColor="@color/slate_500"
                             android:textSize="12sp" />
                     </LinearLayout>
@@ -271,7 +271,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="BragCar"
+                            android:text="BragCar - 4 chỗ"
                             android:textColor="@color/slate_900"
                             android:textSize="16sp"
                             android:textStyle="bold" />
@@ -280,7 +280,7 @@
                             android:id="@+id/tvCarInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Thoải mái • -- phút"
+                            android:text="Xe 4 chỗ • -- phút"
                             android:textColor="@color/slate_500"
                             android:textSize="12sp" />
                     </LinearLayout>
