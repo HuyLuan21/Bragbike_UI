@@ -16,20 +16,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BragBike"
         android:usesCleartextTraffic="true">
+        <activity android:name=".ActivityHistoryActivity" />
         <activity
-            android:name=".BookingActivity"
+            android:name=".users.BookingActivity"
             android:exported="false" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".users.HomeUserActivity"
             android:exported="false" />
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".auth.ForgotPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".auth.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".auth.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

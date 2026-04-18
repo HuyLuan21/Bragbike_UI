@@ -1,4 +1,4 @@
-package com.example.bragbike;
+package com.example.bragbike.auth;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.bragbike.R;
 import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.RetrofitClient;
 import com.google.android.material.button.MaterialButton;

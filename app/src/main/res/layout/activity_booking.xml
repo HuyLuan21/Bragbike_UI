@@ -51,41 +51,23 @@
                 android:padding="16dp">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <View
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:background="@drawable/circle_primary" />
-
-                    <View
-                        android:layout_width="2dp"
-                        android:layout_height="24dp"
-                        android:background="@color/slate_200" />
-
-                    <View
-                        android:layout_width="8dp"
-                        android:layout_height="8dp"
-                        android:background="@drawable/square_outline_primary" />
-                </LinearLayout>
-
-                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:orientation="vertical">
 
-                    <TextView
+                    <EditText
+                        android:id="@+id/etOrigin"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Vị trí của bạn"
-                        android:textColor="@color/slate_500"
-                        android:textSize="12sp" />
-
+                        android:background="@null"
+                        android:hint="Vị trí của bạn"
+                        android:inputType="text"
+                        android:paddingVertical="4dp"
+                        android:textColor="@color/slate_900"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -247,7 +229,6 @@
                             android:textColor="@color/slate_500"
                             android:textSize="12sp" />
                     </LinearLayout>
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -259,36 +240,6 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Payment Method -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/bg_payment_selector"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_launcher_background" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:text="•••• 4242"
-                    android:textColor="@color/slate_900"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Thay đổi"
-                    android:textColor="@color/primary"
-                    android:textStyle="bold" />
-            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnConfirm"
@@ -296,6 +247,9 @@
                 android:layout_height="64dp"
                 android:text="Xác nhận đặt xe"
                 android:textAllCaps="false"
+                app:backgroundTint="@color/primary"
+                app:iconGravity="end"
+                app:iconTint="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:cornerRadius="32dp" />
