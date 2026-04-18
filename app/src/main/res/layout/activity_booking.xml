@@ -13,9 +13,10 @@
         android:layout_height="match_parent" />
 
     <!-- Top Overlay: Search Card -->
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
         <com.google.android.material.button.MaterialButton
@@ -39,7 +40,6 @@
             android:id="@+id/searchCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/btnBack"
             android:layout_marginTop="12dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="6dp"
@@ -48,84 +48,100 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp">
+                android:orientation="vertical">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp">
-
-                    <ImageView
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
-                        android:src="@drawable/dot_blue" />
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:layout_marginVertical="4dp"
-                        android:background="@color/slate_200" />
-
-                    <ImageView
-                        android:layout_width="10dp"
-                        android:layout_height="10dp"
-                        android:src="@drawable/dot_yellow" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:padding="12dp">
 
-                    <EditText
-                        android:id="@+id/etOrigin"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@null"
-                        android:hint="Vị trí đón"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:imeOptions="actionNext"
-                        android:textColor="@color/slate_900"
-                        android:textSize="14sp" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingTop="12dp"
+                        android:paddingBottom="12dp">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:background="@color/slate_100" />
+                        <ImageView
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:src="@drawable/dot_blue" />
 
-                    <EditText
-                        android:id="@+id/etDestination"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:background="@null"
-                        android:hint="Bạn muốn đi đâu?"
-                        android:inputType="text"
-                        android:maxLines="1"
-                        android:imeOptions="actionSearch"
-                        android:textColor="@color/slate_900"
-                        android:textSize="14sp"
-                        android:textStyle="bold" />
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:layout_marginVertical="4dp"
+                            android:background="@color/slate_200" />
+
+                        <ImageView
+                            android:layout_width="10dp"
+                            android:layout_height="10dp"
+                            android:src="@drawable/dot_yellow" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <EditText
+                            android:id="@+id/etOrigin"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@null"
+                            android:hint="Vị trí đón"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:imeOptions="actionNext"
+                            android:textColor="@color/slate_900"
+                            android:textSize="14sp" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/slate_100" />
+
+                        <EditText
+                            android:id="@+id/etDestination"
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:background="@null"
+                            android:hint="Bạn muốn đi đâu?"
+                            android:inputType="text"
+                            android:maxLines="1"
+                            android:imeOptions="actionSearch"
+                            android:textColor="@color/slate_900"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/btnSwap"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center_vertical"
+                        android:padding="6dp"
+                        android:src="@drawable/swap_vert_24px"
+                        app:tint="@color/slate_400" />
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/btnSwap"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center_vertical"
-                    android:padding="6dp"
-                    android:src="@drawable/swap_vert_24px"
-                    app:tint="@color/slate_400" />
+                <!-- Suggestions List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvSuggestions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="300dp"
+                    android:visibility="gone"
+                    tools:listitem="@android:layout/simple_list_item_1"
+                    tools:visibility="visible" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-    </RelativeLayout>
+    </LinearLayout>
 
     <!-- Bottom Sheet -->
     <androidx.core.widget.NestedScrollView
