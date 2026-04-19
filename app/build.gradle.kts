@@ -78,6 +78,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation(libs.gson)
     implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.glide)
 
     // Google Play Services Location
     implementation("com.google.android.gms:play-services-location:21.0.1")

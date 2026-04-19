@@ -4,16 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.bumptech.glide.Glide;
 import com.example.bragbike.ActivityHistoryActivity;
+import com.example.bragbike.BuildConfig;
 import com.example.bragbike.ProfileActivity;
 import com.example.bragbike.R;
 import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.RetrofitClient;
+import com.example.bragbike.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Map;
@@ -25,6 +29,7 @@ import retrofit2.Response;
 public class HomeUserActivity extends AppCompatActivity {
 
     private TextView tvUserName;
+    private ImageView ivAvatar;
     private CardView cvSearch;
     private View btnServiceCar, btnServiceBike;
     private BottomNavigationView bottomNav;
@@ -35,12 +40,13 @@ public class HomeUserActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         tvUserName = findViewById(R.id.tvUserName);
+        ivAvatar = findViewById(R.id.ivAvatar);
         cvSearch = findViewById(R.id.cvSearch);
         btnServiceCar = findViewById(R.id.btnServiceCar);
         btnServiceBike = findViewById(R.id.btnServiceBike);
         bottomNav = findViewById(R.id.bottom_navigation);
 
-        // 1. Hiển thị tên từ bộ nhớ tạm ngay lập tức
+        // Hiển thị tên từ bộ nhớ tạm
         String savedName = getSharedPreferences("bragbike_prefs", MODE_PRIVATE)
                 .getString("user_name", "Người dùng");
         tvUserName.setText("Chào, " + savedName + "!");
@@ -54,7 +60,7 @@ public class HomeUserActivity extends AppCompatActivity {
         btnServiceCar.setOnClickListener(startBooking);
         btnServiceBike.setOnClickListener(startBooking);
 
-        // 2. XỬ LÝ BOTTOM NAVIGATION
+        // Xử lý Bottom Navigation
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_history) { 
@@ -74,32 +80,42 @@ public class HomeUserActivity extends AppCompatActivity {
 
     private void loadUserProfile() {
         ApiService api = RetrofitClient.getInstance(this).getApiService();
-        api.getMe().enqueue(new Callback<Map<String, Object>>() {
+        api.getMe().enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> body = response.body();
-                    String fullName = extractFullName(body);
+                    User user = response.body();
+                    String fullName = user.getFullName();
                     if (fullName != null) {
                         tvUserName.setText("Chào, " + fullName + "!");
                         getSharedPreferences("bragbike_prefs", MODE_PRIVATE)
                                 .edit().putString("user_name", fullName).apply();
                     }
+
+                    // Tải ảnh avatar
+                    String avatarUrl = user.getAvatarUrl();
+                    if (avatarUrl != null && !avatarUrl.isEmpty()) {
+                        
+                        // FIX: Chuyển SVG sang PNG cho DiceBear vì Glide không hỗ trợ SVG mặc định
+                        if (avatarUrl.contains("dicebear.com") && avatarUrl.contains("/svg")) {
+                            avatarUrl = avatarUrl.replace("/svg", "/png");
+                        }
+
+                        String fullUrl = avatarUrl.startsWith("http") ? avatarUrl : BuildConfig.BASE_URL + avatarUrl;
+                        
+                        Glide.with(HomeUserActivity.this)
+                                .load(fullUrl)
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .error(R.drawable.ic_launcher_foreground)
+                                .circleCrop()
+                                .into(ivAvatar);
+                    }
                 }
             }
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 Log.e("HOME_USER_ACT", "Error", t);
             }
         });
-    }
-
-    private String extractFullName(Map<String, Object> body) {
-        if (body.containsKey("full_name")) return (String) body.get("full_name");
-        if (body.get("user") instanceof Map) {
-            Map<?, ?> user = (Map<?, ?>) body.get("user");
-            return (String) user.get("full_name");
-        }
-        return null;
     }
 }

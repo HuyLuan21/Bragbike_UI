@@ -11,6 +11,7 @@ mapbox = "11.22.0"
 mapbox-services = "7.3.0"
 gson = "2.10.1"
 swiperefreshlayout = "1.1.0"
+glide = "4.16.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -25,6 +26,7 @@ mapbox-sdk-services = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-servi
 mapbox-sdk-turf = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-turf", version.ref = "mapbox-services" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

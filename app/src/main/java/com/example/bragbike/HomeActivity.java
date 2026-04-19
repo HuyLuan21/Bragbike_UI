@@ -4,14 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.bumptech.glide.Glide;
 import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.RetrofitClient;
+import com.example.bragbike.model.User;
 import com.example.bragbike.users.BookingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -24,6 +27,7 @@ import retrofit2.Response;
 public class HomeActivity extends AppCompatActivity {
 
     private TextView tvUserName;
+    private ImageView ivAvatar;
     private CardView cvSearch;
     private View btnServiceCar, btnServiceBike;
     private BottomNavigationView bottomNav;
@@ -34,6 +38,7 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         tvUserName = findViewById(R.id.tvUserName);
+        ivAvatar = findViewById(R.id.ivAvatar);
         cvSearch = findViewById(R.id.cvSearch);
         btnServiceCar = findViewById(R.id.btnServiceCar);
         btnServiceBike = findViewById(R.id.btnServiceBike);
@@ -89,28 +94,31 @@ public class HomeActivity extends AppCompatActivity {
 
     private void loadUserProfile() {
         ApiService api = RetrofitClient.getInstance(this).getApiService();
-        api.getMe().enqueue(new Callback<Map<String, Object>>() {
+        api.getMe().enqueue(new Callback<User>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(Call<User> call, Response<User> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> body = response.body();
-                    String fullName = extractFullName(body);
+                    User user = response.body();
+                    String fullName = user.getFullName();
                     if (fullName != null) {
                         tvUserName.setText("Chào, " + fullName + "!");
                         getSharedPreferences("bragbike_prefs", MODE_PRIVATE).edit().putString("user_name", fullName).apply();
                     }
+                    
+                    // Tải ảnh avatar nếu có
+                    if (user.getAvatarUrl() != null && !user.getAvatarUrl().isEmpty()) {
+                        Glide.with(HomeActivity.this)
+                                .load(user.getAvatarUrl())
+                                .placeholder(R.drawable.ic_launcher_foreground)
+                                .error(R.drawable.ic_launcher_foreground)
+                                .into(ivAvatar);
+                    }
                 }
             }
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+            public void onFailure(Call<User> call, Throwable t) {
                 Log.e("HOME_ACT", "Error", t);
             }
         });
-    }
-
-    private String extractFullName(Map<String, Object> body) {
-        if (body.containsKey("full_name")) return (String) body.get("full_name");
-        if (body.get("user") instanceof Map) return (String) ((Map<?, ?>) body.get("user")).get("full_name");
-        return null;
     }
 }

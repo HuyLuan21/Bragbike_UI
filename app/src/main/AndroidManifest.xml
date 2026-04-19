@@ -16,6 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BragBike"
         android:usesCleartextTraffic="true">
+        <activity android:name=".EditProfileActivity" />
         <activity android:name=".ActivityHistoryActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".HomeActivity" />

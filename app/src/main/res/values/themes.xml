@@ -8,6 +8,10 @@
 
     <style name="Theme.BragBike" parent="Base.Theme.BragBike" />
 
+    <style name="CircleImage" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
         <item name="cornerSize">50%</item>
     </style>

@@ -4,7 +4,10 @@ import com.example.bragbike.model.LoginRequest;
 import com.example.bragbike.model.LoginResponse;
 import com.example.bragbike.model.PeakHour;
 import com.example.bragbike.model.Ride;
+import com.example.bragbike.model.User;
 import com.example.bragbike.model.VehiclePricing;
+
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 import java.util.List;
@@ -37,16 +40,17 @@ public interface ApiService {
     //  2. USERS
     // ═══════════════════════════════════════
     @GET("users/me")
-    Call<Map<String, Object>> getMe();
+    Call<User> getMe();
 
     @PUT("users/me")
-    Call<Map<String, Object>> updateMe(@Body Map<String, Object> body);
+    Call<User> updateMe(@Body Map<String, Object> body);
 
     @PUT("users/me/password")
     Call<Map<String, Object>> changePassword(@Body Map<String, Object> body);
 
+    @Multipart
     @PUT("users/me/avatar")
-    Call<Map<String, Object>> updateAvatar(@Body Map<String, Object> body);
+    Call<Map<String, Object>> updateAvatar(@Part MultipartBody.Part avatar);
 
     // ═══════════════════════════════════════
     //  3. DRIVERS
