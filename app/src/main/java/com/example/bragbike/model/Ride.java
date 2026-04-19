@@ -9,19 +9,23 @@ public class Ride {
     @SerializedName("pickup_address")
     private String pickupAddress;
     
-    // Đổi thành drop_address để khớp với API của bạn
     @SerializedName("drop_address")
     private String dropoffAddress;
     
     @SerializedName("status")
     private String status;
     
-    // Đổi thành total_price để khớp với API của bạn
     @SerializedName("total_price")
     private Double fare;
     
     @SerializedName("created_at")
     private String createdAt;
+
+    @SerializedName("vehicle_type")
+    private String vehicleType;
+
+    @SerializedName("user")
+    private User customer;
 
     // Getters and Setters
     public int getId() { return id; }
@@ -41,4 +45,10 @@ public class Ride {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getVehicleType() { return vehicleType; }
+    public void setVehicleType(String vehicleType) { this.vehicleType = vehicleType; }
+
+    public User getCustomer() { return customer; }
+    public void setCustomer(User customer) { this.customer = customer; }
 }

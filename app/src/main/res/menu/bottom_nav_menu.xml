@@ -8,10 +8,12 @@
         android:id="@+id/nav_history"
         android:icon="@android:drawable/ic_menu_recent_history"
         android:title="Hoạt động" />
-    <item
-        android:id="@+id/nav_notifications"
-        android:icon="@drawable/notifications_24px"
-        android:title="Thông báo" />
+
+<!--    do noti real time later-->
+<!--    <item-->
+<!--        android:id="@+id/nav_notifications"-->
+<!--        android:icon="@drawable/notifications_24px"-->
+<!--        android:title="Thông báo" />-->
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/edit_24px"

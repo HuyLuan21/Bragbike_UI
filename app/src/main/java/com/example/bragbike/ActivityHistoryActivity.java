@@ -12,6 +12,7 @@ import com.example.bragbike.adapter.RideHistoryAdapter;
 import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.RetrofitClient;
 import com.example.bragbike.model.Ride;
+import com.example.bragbike.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.util.List;
 import retrofit2.Call;
@@ -80,14 +81,49 @@ public class ActivityHistoryActivity extends AppCompatActivity {
     private void loadRideHistory() {
         swipeRefresh.setRefreshing(true);
         ApiService api = RetrofitClient.getInstance(this).getApiService();
-        api.getUserRideHistory().enqueue(new Callback<List<Ride>>() {
+        
+        // Lấy profile để biết role
+        api.getMe().enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    String role = response.body().getRole();
+                    boolean isDriver = "DRIVER".equals(role);
+                    
+                    // Cập nhật chế độ hiển thị cho Adapter
+                    adapter.setDriverView(isDriver);
+
+                    fetchHistoryByRole(api, role);
+                } else {
+                    swipeRefresh.setRefreshing(false);
+                    Toast.makeText(ActivityHistoryActivity.this, "Không thể xác định quyền hạn", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                swipeRefresh.setRefreshing(false);
+                Toast.makeText(ActivityHistoryActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchHistoryByRole(ApiService api, String role) {
+        Call<List<Ride>> historyCall;
+        if ("DRIVER".equals(role)) {
+            historyCall = api.getDriverRideHistory();
+        } else {
+            historyCall = api.getUserRideHistory();
+        }
+
+        historyCall.enqueue(new Callback<List<Ride>>() {
             @Override
             public void onResponse(Call<List<Ride>> call, Response<List<Ride>> response) {
                 swipeRefresh.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setRides(response.body());
                 } else {
-                    Toast.makeText(ActivityHistoryActivity.this, "Không thể tải lịch sử chuyến đi", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ActivityHistoryActivity.this, "Không thể tải lịch sử", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -95,7 +131,7 @@ public class ActivityHistoryActivity extends AppCompatActivity {
             public void onFailure(Call<List<Ride>> call, Throwable t) {
                 swipeRefresh.setRefreshing(false);
                 Log.e("HISTORY_ACT", "Error loading history", t);
-                Toast.makeText(ActivityHistoryActivity.this, "Lỗi kết nối", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ActivityHistoryActivity.this, "Lỗi khi tải danh sách", Toast.LENGTH_SHORT).show();
             }
         });
     }

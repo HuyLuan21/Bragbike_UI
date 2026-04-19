@@ -74,7 +74,12 @@ public class HomeUserActivity extends AppCompatActivity {
             }
             return id == R.id.nav_home;
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Luôn cập nhật lại thông tin người dùng (bao gồm avatar) khi quay lại trang Home
         loadUserProfile();
     }
 
@@ -96,7 +101,7 @@ public class HomeUserActivity extends AppCompatActivity {
                     String avatarUrl = user.getAvatarUrl();
                     if (avatarUrl != null && !avatarUrl.isEmpty()) {
                         
-                        // FIX: Chuyển SVG sang PNG cho DiceBear vì Glide không hỗ trợ SVG mặc định
+                        // FIX: Chuyển SVG sang PNG cho DiceBear
                         if (avatarUrl.contains("dicebear.com") && avatarUrl.contains("/svg")) {
                             avatarUrl = avatarUrl.replace("/svg", "/png");
                         }

@@ -28,6 +28,14 @@ public class SuggestionAdapter extends RecyclerView.Adapter<SuggestionAdapter.Vi
         notifyDataSetChanged();
     }
 
+    // Thêm phương thức để lấy kết quả đầu tiên
+    public CarmenFeature getFirstFeature() {
+        if (suggestions != null && !suggestions.isEmpty()) {
+            return suggestions.get(0);
+        }
+        return null;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

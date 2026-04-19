@@ -3,6 +3,7 @@ package com.example.bragbike.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,10 +21,15 @@ import java.util.TimeZone;
 public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.ViewHolder> {
 
     private List<Ride> rides = new ArrayList<>();
+    private boolean isDriverView = false;
 
     public void setRides(List<Ride> rides) {
         this.rides = rides;
         notifyDataSetChanged();
+    }
+
+    public void setDriverView(boolean driverView) {
+        isDriverView = driverView;
     }
 
     @NonNull
@@ -44,11 +50,26 @@ public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.
         holder.tvPickupAddress.setText(ride.getPickupAddress());
         holder.tvDropoffAddress.setText(ride.getDropoffAddress());
         
-        // Hiển thị giá tiền (đảm bảo không hiển thị 0đ nếu có dữ liệu)
+        // Hiển thị giá tiền
         double fare = ride.getFare();
         holder.tvFare.setText(String.format("%,.0fđ", fare));
         
         updateStatusStyle(holder.tvStatus, ride.getStatus());
+
+        // Cập nhật icon dựa trên loại phương tiện
+        String vehicleType = ride.getVehicleType();
+        if (vehicleType != null && (vehicleType.contains("CAR") || vehicleType.contains("car"))) {
+            holder.ivVehicleIcon.setImageResource(R.drawable.directions_car_24px);
+        } else {
+            holder.ivVehicleIcon.setImageResource(R.drawable.moped_24px);
+        }
+
+        // Xử lý hiển thị nút bấm: Tài xế không thấy nút "Đặt lại/Đặt quay về"
+        if (isDriverView) {
+            holder.layoutUserActions.setVisibility(View.GONE);
+        } else {
+            holder.layoutUserActions.setVisibility(View.VISIBLE);
+        }
     }
 
     private String formatDate(String dateStr) {
@@ -107,6 +128,8 @@ public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTimeDate, tvStatus, tvPickupAddress, tvDropoffAddress, tvFare;
+        ImageView ivVehicleIcon;
+        View layoutUserActions;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -115,6 +138,8 @@ public class RideHistoryAdapter extends RecyclerView.Adapter<RideHistoryAdapter.
             tvPickupAddress = itemView.findViewById(R.id.tvPickupAddress);
             tvDropoffAddress = itemView.findViewById(R.id.tvDropoffAddress);
             tvFare = itemView.findViewById(R.id.tvFare);
+            ivVehicleIcon = itemView.findViewById(R.id.ivVehicleIcon);
+            layoutUserActions = itemView.findViewById(R.id.layoutUserActions);
         }
     }
 }

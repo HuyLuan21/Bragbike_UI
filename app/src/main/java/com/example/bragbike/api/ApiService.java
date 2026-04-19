@@ -61,6 +61,18 @@ public interface ApiService {
     @GET("drivers/me")
     Call<Map<String, Object>> getDriverProfile();
 
+    @GET("drivers/me/history")
+    Call<List<Ride>> getDriverRideHistory();
+
+    @PATCH("drivers/me/online")
+    Call<Map<String, Object>> toggleOnline(@Body Map<String, Object> body);
+
+    @PATCH("drivers/me/location")
+    Call<Map<String, Object>> updateLocation(@Body Map<String, Object> body);
+
+    @GET("drivers/available-rides")
+    Call<List<Ride>> getAvailableRides();
+
     // ═══════════════════════════════════════
     //  4. PRICING & ESTIMATION
     // ═══════════════════════════════════════
@@ -79,6 +91,9 @@ public interface ApiService {
             @Query("distance") double distanceKm
     );
 
+    // ═══════════════════════════════════════
+    //  5. RIDES
+    // ═══════════════════════════════════════
     @GET("rides/estimate")
     Call<Map<String, Object>> estimateFare(
             @Query("pickup_lat") double pickupLat,
@@ -97,9 +112,6 @@ public interface ApiService {
     @GET("rides/{id}")
     Call<Map<String, Object>> getRideById(@Path("id") int rideId);
 
-    @GET("rides/{id}/status-history")
-    Call<List<Map<String, Object>>> getRideStatusHistory(@Path("id") int rideId);
-
     @POST("rides/{id}/accept")
     Call<Map<String, Object>> acceptRide(@Path("id") int rideId);
 
@@ -114,37 +126,4 @@ public interface ApiService {
 
     @POST("rides/{id}/cancel")
     Call<Map<String, Object>> cancelRide(@Path("id") int rideId, @Body Map<String, Object> body);
-
-    @POST("ratings")
-    Call<Map<String, Object>> createRating(@Body Map<String, Object> body);
-
-    @GET("ratings/ride/{rideId}")
-    Call<Map<String, Object>> getRatingByRide(@Path("rideId") int rideId);
-
-    @GET("ratings/driver/{driverId}")
-    Call<List<Map<String, Object>>> getDriverRatings(@Path("driverId") int driverId);
-
-    @POST("reports")
-    Call<Map<String, Object>> createReport(@Body Map<String, Object> body);
-
-    @GET("reports/me")
-    Call<List<Map<String, Object>>> getMyReports();
-
-    @GET("reports/{id}")
-    Call<Map<String, Object>> getReportById(@Path("id") int reportId);
-
-    @GET("notifications")
-    Call<List<Map<String, Object>>> getMyNotifications(
-            @Query("page") int page,
-            @Query("limit") int limit
-    );
-
-    @GET("notifications/unread-count")
-    Call<Map<String, Object>> getUnreadCount();
-
-    @PATCH("notifications/read-all")
-    Call<Map<String, Object>> markAllAsRead();
-
-    @PATCH("notifications/{id}/read")
-    Call<Map<String, Object>> markAsRead(@Path("id") int notifId);
 }

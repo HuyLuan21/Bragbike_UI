@@ -16,6 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BragBike"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".DriverRideProgressActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".RideRequestActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".EditProfileActivity" />
         <activity android:name=".ActivityHistoryActivity" />
         <activity android:name=".ProfileActivity" />

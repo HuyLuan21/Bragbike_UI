@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:layout_marginBottom="20dp">
+                android:layout_marginBottom="12dp">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cvAvatar"
@@ -67,366 +67,173 @@
 
             </RelativeLayout>
 
-            <!-- Search Bar -->
+            <!-- DRIVER MODE SWITCH -->
             <androidx.cardview.widget.CardView
-                android:id="@+id/cvSearch"
+                android:id="@+id/cvDriverToggle"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="24dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/white"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingHorizontal="16dp">
+                    android:padding="12dp">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/search_24px"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@drawable/moped_24px"
                         app:tint="@color/primary" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="Bạn muốn đi đâu?"
-                        android:textColor="@color/slate_400"
-                        android:textSize="14sp" />
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chế độ Tài xế"
+                            android:textColor="@color/slate_900"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvDriverStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Đang ngoại tuyến"
+                            android:textColor="@color/slate_500"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchDriverOnline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <TextView
+            <!-- USER CONTENT -->
+            <LinearLayout
+                android:id="@+id/layoutUserContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:text="Địa điểm thường xuyên"
-                android:textColor="@color/slate_900"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
 
-            <!-- Dùng GridLayout cho hàng trên y hệt hàng dưới -->
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:columnCount="4">
-
-                <!-- Nhà -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/home_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Nhà"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Công ty -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/work_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Công ty"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Bạn bè -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/favorite_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Bạn bè"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Thêm -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/add_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Thêm"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </GridLayout>
-
-            <!-- Services Grid -->
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:columnCount="4">
-
-                <!-- Ô tô -->
-                <LinearLayout
-                    android:id="@+id/btnServiceCar"
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/directions_car_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Ô tô"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Xe máy -->
-                <LinearLayout
-                    android:id="@+id/btnServiceBike"
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/moped_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Xe máy"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Giao hàng -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/local_shipping_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Giao hàng"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <!-- Đồ ăn -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_columnWeight="1"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        app:cardBackgroundColor="#FFF3E0"
-                        app:cardCornerRadius="20dp"
-                        app:cardElevation="2dp">
-
-                        <ImageView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:scaleType="centerInside"
-                            android:src="@drawable/restaurant_24px"
-                            app:tint="@color/primary" />
-                    </androidx.cardview.widget.CardView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Đồ ăn"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </GridLayout>
-
-            <!-- Promo Banner -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="4dp">
-
-                <RelativeLayout
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cvSearch"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/gradient_orange"
-                    android:padding="20dp">
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="24dp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="4dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingHorizontal="16dp">
+                        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/search_24px" app:tint="@color/primary" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="Bạn muốn đi đâu?" android:textColor="@color/slate_400" android:textSize="14sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-                    <TextView
-                        android:id="@+id/tvPromoTitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Giảm 50% cho\nchuyến đi đầu tiên"
-                        android:textColor="@color/white"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:text="Địa điểm thường xuyên" android:textColor="@color/slate_900" android:textSize="16sp" android:textStyle="bold" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:backgroundTint="@color/white"
-                        android:text="Đặt ngay"
-                        android:textAllCaps="false"
-                        android:textColor="@color/primary"
-                        app:cornerRadius="20dp" />
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
+                <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="24dp" android:columnCount="4">
+                    <LinearLayout android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/home_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Nhà" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/work_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Công ty" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/favorite_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Bạn bè" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/add_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Thêm" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                </GridLayout>
+
+                <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="24dp" android:columnCount="4">
+                    <LinearLayout android:id="@+id/btnServiceCar" android:layout_width="0dp" android:layout_columnWeight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/directions_car_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Ô tô" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:id="@+id/btnServiceBike" android:layout_width="0dp" android:layout_columnWeight="1" android:clickable="true" android:focusable="true" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/moped_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Xe máy" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/local_shipping_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Giao hàng" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:orientation="vertical">
+                        <androidx.cardview.widget.CardView android:layout_width="60dp" android:layout_height="60dp" app:cardBackgroundColor="#FFF3E0" app:cardCornerRadius="20dp" app:cardElevation="2dp">
+                            <ImageView android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerInside" android:src="@drawable/restaurant_24px" app:tint="@color/primary" />
+                        </androidx.cardview.widget.CardView>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Đồ ăn" android:textSize="12sp" android:textStyle="bold" />
+                    </LinearLayout>
+                </GridLayout>
+            </LinearLayout>
+
+            <!-- DRIVER WAITING STATE -->
+            <LinearLayout
+                android:id="@+id/layoutDriverWaiting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingTop="60dp"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:indeterminateTint="@color/primary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="Đang tìm cuốc xe gần bạn..."
+                    android:textColor="@color/slate_600"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Bottom Navigation -->
+    <!-- Bottom Navigation - Di chuyển lên trước Bottom Sheet -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="115dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/white"
-        app:elevation="16dp"
+        app:elevation="8dp"
         app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/nav_item_color"
         app:itemTextAppearanceActive="@style/BottomNavText.Active"
@@ -434,5 +241,8 @@
         app:itemTextColor="@color/nav_item_color"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu" />
+
+    <!-- Bottom Sheet Request - PHẢI ĐỂ DƯỚI CÙNG ĐỂ NẰM TRÊN CÙNG GIAO DIỆN -->
+    <include layout="@layout/layout_driver_ride_request" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
