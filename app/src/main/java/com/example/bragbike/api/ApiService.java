@@ -3,6 +3,7 @@ package com.example.bragbike.api;
 import com.example.bragbike.model.LoginRequest;
 import com.example.bragbike.model.LoginResponse;
 import com.example.bragbike.model.PeakHour;
+import com.example.bragbike.model.Ride;
 import com.example.bragbike.model.VehiclePricing;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -87,7 +88,7 @@ public interface ApiService {
     Call<Map<String, Object>> createRide(@Body Map<String, Object> body);
 
     @GET("rides/history")
-    Call<List<Map<String, Object>>> getUserRideHistory();
+    Call<List<Ride>> getUserRideHistory();
 
     @GET("rides/{id}")
     Call<Map<String, Object>> getRideById(@Path("id") int rideId);

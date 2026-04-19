@@ -72,12 +72,13 @@
                         android:layout_height="8dp"
                         android:background="@drawable/dot_blue"/>
                     <TextView
+                        android:id="@+id/tvPickupAddress"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="Ga Hà Nội - Sảnh Chính Lê Duẩn, Lê ..."
+                        android:text="Điểm đón"
                         android:textColor="@color/slate_900"
                         android:textSize="14sp" />
                 </LinearLayout>
@@ -93,21 +94,23 @@
                         android:layout_height="8dp"
                         android:background="@drawable/dot_yellow"/>
                     <TextView
+                        android:id="@+id/tvDropoffAddress"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:text="1 Hẻm 43/49/1 Trung Kính, P.Trung ..."
+                        android:text="Điểm đến"
                         android:textColor="@color/slate_900"
                         android:textSize="14sp" />
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tvFare"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="👤 Đặt hộ Lan Anh"
+                    android:text="0đ"
                     android:textColor="@color/slate_500"
                     android:textSize="12sp" />
 

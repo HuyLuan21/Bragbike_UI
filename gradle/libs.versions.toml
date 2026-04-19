@@ -10,6 +10,7 @@ constraintlayout = "2.2.1"
 mapbox = "11.22.0"
 mapbox-services = "7.3.0"
 gson = "2.10.1"
+swiperefreshlayout = "1.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -23,6 +24,7 @@ mapbox-android = { group = "com.mapbox.maps", name = "android-ndk27", version.re
 mapbox-sdk-services = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-services", version.ref = "mapbox-services" }
 mapbox-sdk-turf = { group = "com.mapbox.mapboxsdk", name = "mapbox-sdk-turf", version.ref = "mapbox-services" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
@@ -22,65 +23,21 @@
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <androidx.core.widget.NestedScrollView
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false">
+            android:layout_weight="1">
 
-            <LinearLayout
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvRideHistory"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="120dp">
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="120dp"
+                tools:listitem="@layout/item_ride_history" />
 
-                <!-- Thống kê tháng -->
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Tháng 10/2025"
-                        android:textColor="@color/slate_700"
-                        android:textSize="15sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:text="Xem thống kê"
-                        android:textColor="#3F51B5"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </RelativeLayout>
-
-                <!-- Item Lịch sử 1 -->
-                <include layout="@layout/item_ride_history" />
-
-                <!-- Banner Gói tiết kiệm (Mockup màu vàng nhạt) -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginVertical="12dp"
-                    app:cardBackgroundColor="#FFFDE7"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"/>
-
-                <!-- Item Lịch sử 2 -->
-                <include layout="@layout/item_ride_history" />
-
-                <!-- Item Lịch sử 3 -->
-                <include layout="@layout/item_ride_history" />
-
-            </LinearLayout>
-        </androidx.core.widget.NestedScrollView>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </LinearLayout>
 
