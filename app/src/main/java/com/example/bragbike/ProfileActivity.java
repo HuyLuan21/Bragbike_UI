@@ -3,12 +3,17 @@ package com.example.bragbike;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.RetrofitClient;
+import com.example.bragbike.auth.LoginActivity;
+import com.example.bragbike.utils.TokenManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Map;
@@ -19,7 +24,8 @@ import retrofit2.Response;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView tvUserName;
+    private TextView tvUserName, tvUserPhone, tvTripCount, tvRating;
+    private LinearLayout layoutDriverStats, btnLogout, btnBecomeDriver, btnEditProfile;
     private BottomNavigationView bottomNav;
 
     @Override
@@ -27,31 +33,61 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        initViews();
+        setupListeners();
+        setupBottomNavigation();
+        loadUserProfile();
+    }
+
+    private void initViews() {
         tvUserName = findViewById(R.id.tvUserName);
+        tvUserPhone = findViewById(R.id.tvUserPhone);
+        tvTripCount = findViewById(R.id.tvTripCount);
+        tvRating = findViewById(R.id.tvRating);
+        layoutDriverStats = findViewById(R.id.layoutDriverStats);
+        
+        btnEditProfile = findViewById(R.id.btnEditProfile);
+        btnBecomeDriver = findViewById(R.id.btnBecomeDriver);
+        btnLogout = findViewById(R.id.btnLogout);
+        
         bottomNav = findViewById(R.id.bottom_navigation);
+    }
 
-        // Highlight Profile Tab
+    private void setupListeners() {
+        btnLogout.setOnClickListener(v -> {
+            TokenManager tokenManager = RetrofitClient.getInstance(this).getTokenManager();
+            tokenManager.clearToken();
+            
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
+        btnBecomeDriver.setOnClickListener(v -> {
+            Toast.makeText(this, "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
+        });
+
+        btnEditProfile.setOnClickListener(v -> {
+            Toast.makeText(this, "Chỉnh sửa hồ sơ", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void setupBottomNavigation() {
         bottomNav.setSelectedItemId(R.id.nav_profile);
-
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, HomeActivity.class));
                 finish();
                 return true;
             } else if (id == R.id.nav_history) {
-                Intent intent = new Intent(ProfileActivity.this, ActivityHistoryActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(this, ActivityHistoryActivity.class));
                 finish();
                 return true;
-            } else if (id == R.id.nav_profile) {
-                return true;
             }
-            return false;
+            return id == R.id.nav_profile;
         });
-
-        loadUserProfile();
     }
 
     private void loadUserProfile() {
@@ -60,23 +96,69 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Map<String, Object> body = response.body();
-                    String fullName = extractFullName(body);
-                    if (fullName != null) {
-                        tvUserName.setText(fullName);
+                    updateUI(response.body());
+                }
+            }
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                Log.e("PROFILE_ACT", "Error loading profile", t);
+            }
+        });
+    }
+
+    private void updateUI(Map<String, Object> data) {
+        String fullName = (String) data.get("full_name");
+        String phone = (String) data.get("phone");
+        String role = (String) data.get("role");
+
+        tvUserName.setText(fullName != null ? fullName : "N/A");
+        tvUserPhone.setText(phone != null ? phone : "N/A");
+
+        if ("DRIVER".equals(role)) {
+            layoutDriverStats.setVisibility(View.VISIBLE);
+            btnBecomeDriver.setVisibility(View.GONE);
+            loadDriverStats();
+        } else {
+            layoutDriverStats.setVisibility(View.GONE);
+            btnBecomeDriver.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void loadDriverStats() {
+        ApiService api = RetrofitClient.getInstance(this).getApiService();
+        api.getDriverStats().enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                Log.d("PROFILE_STATS", "Response: " + response.body());
+                if (response.isSuccessful() && response.body() != null) {
+                    Map<String, Object> stats = response.body();
+                    
+                    try {
+                        Object tripsObj = stats.get("total_trips");
+                        if (tripsObj == null) tripsObj = stats.get("total_rides");
+                        if (tripsObj == null) tripsObj = stats.get("trip_count");
+                        
+                        if (tripsObj != null) {
+                            double trips = Double.parseDouble(tripsObj.toString());
+                            tvTripCount.setText(String.valueOf((int) trips));
+                        }
+
+                        Object ratingObj = stats.get("avg_rating");
+                        if (ratingObj == null) ratingObj = stats.get("rating");
+
+                        if (ratingObj != null) {
+                            double rating = Double.parseDouble(ratingObj.toString());
+                            tvRating.setText(String.format("%.1f", rating));
+                        }
+                    } catch (Exception e) {
+                        Log.e("PROFILE_ACT", "Error parsing stats", e);
                     }
                 }
             }
             @Override
             public void onFailure(Call<Map<String, Object>> call, Throwable t) {
-                Log.e("PROFILE_ACT", "Error", t);
+                Log.e("PROFILE_ACT", "Error loading driver stats", t);
             }
         });
-    }
-
-    private String extractFullName(Map<String, Object> body) {
-        if (body.containsKey("full_name")) return (String) body.get("full_name");
-        if (body.get("user") instanceof Map) return (String) ((Map<?, ?>) body.get("user")).get("full_name");
-        return null;
     }
 }

@@ -40,22 +40,6 @@
                     app:strokeWidth="4dp" />
 
                 <TextView
-                    android:id="@+id/tvBadgePro"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_badge_pro"
-                    android:fontFamily="sans-serif-black"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="2dp"
-                    android:text="PRO"
-                    android:textColor="@color/on_tertiary_fixed"
-                    android:textSize="10sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/ivAvatar"
-                    app:layout_constraintEnd_toEndOf="@+id/ivAvatar"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
                     android:id="@+id/tvUserName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -69,25 +53,27 @@
                     app:layout_constraintTop_toBottomOf="@+id/ivAvatar" />
 
                 <TextView
-                    android:id="@+id/tvMemberSince"
+                    android:id="@+id/tvUserPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:alpha="0.9"
-                    android:text="Thành viên từ tháng 10, 2023"
+                    android:text="0901111111"
                     android:textColor="@color/on_primary"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tvUserName" />
 
                 <LinearLayout
+                    android:id="@+id/layoutDriverStats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="24dp"
                     android:orientation="horizontal"
-                    android:weightSum="3"
-                    app:layout_constraintTop_toBottomOf="@+id/tvMemberSince">
+                    android:weightSum="2"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toBottomOf="@+id/tvUserPhone">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -97,10 +83,11 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvTripCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="128"
+                            android:text="0"
                             android:textColor="@color/on_primary"
                             android:textSize="18sp" />
 
@@ -128,10 +115,11 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvRating"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="sans-serif-black"
-                            android:text="4.9"
+                            android:text="5.0"
                             android:textColor="@color/on_primary"
                             android:textSize="18sp" />
 
@@ -140,37 +128,6 @@
                             android:layout_height="wrap_content"
                             android:alpha="0.8"
                             android:text="ĐÁNH GIÁ"
-                            android:textColor="@color/on_primary"
-                            android:textSize="10sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:alpha="0.2"
-                        android:background="@color/white" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="sans-serif-black"
-                            android:text="2.4k"
-                            android:textColor="@color/on_primary"
-                            android:textSize="18sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:alpha="0.8"
-                            android:text="ĐIỂM"
                             android:textColor="@color/on_primary"
                             android:textSize="10sp"
                             android:textStyle="bold" />

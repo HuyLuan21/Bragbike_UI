@@ -48,7 +48,16 @@ public interface ApiService {
     Call<Map<String, Object>> updateAvatar(@Body Map<String, Object> body);
 
     // ═══════════════════════════════════════
-    //  3. PRICING & ESTIMATION
+    //  3. DRIVERS
+    // ═══════════════════════════════════════
+    @GET("drivers/me/stats")
+    Call<Map<String, Object>> getDriverStats();
+
+    @GET("drivers/me")
+    Call<Map<String, Object>> getDriverProfile();
+
+    // ═══════════════════════════════════════
+    //  4. PRICING & ESTIMATION
     // ═══════════════════════════════════════
     @GET("pricing")
     Call<List<VehiclePricing>> getAllPricing();
@@ -74,7 +83,6 @@ public interface ApiService {
             @Query("vehicle_type") String vehicleType
     );
 
-    // ... (Giữ nguyên các phần khác)
     @POST("rides")
     Call<Map<String, Object>> createRide(@Body Map<String, Object> body);
 
