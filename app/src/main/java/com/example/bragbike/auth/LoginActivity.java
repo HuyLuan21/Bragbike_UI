@@ -37,15 +37,16 @@ public class LoginActivity extends AppCompatActivity {
         tvSignUp = findViewById(R.id.tvSignUp);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
 
-        btnLogin.setOnClickListener(v -> {
-            String identifier = etEmailPhone.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+        // Tự động điền để bạn thấy thông tin trên màn hình (Tùy chọn)
+        etEmailPhone.setText("admin@gmail.com"); 
+        etPassword.setText("123456");
 
-            if (identifier.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
-            } else {
-                login(identifier, password);
-            }
+        btnLogin.setOnClickListener(v -> {
+            // HARDCODE: Luôn bắn API với tài khoản này
+            String identifier = "0904444444"; // <-- Thay bằng email/SĐT của bạn
+            String password = "123";           // <-- Thay bằng mật khẩu của bạn
+
+            login(identifier, password);
         });
 
         tvSignUp.setOnClickListener(v -> {
@@ -75,10 +76,10 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse data = response.body();
                     
-                    // 1. Lưu Token
+                    // 1. Lưu Token thật từ API
                     tokenManager.saveToken(data.getToken());
 
-                    // 2. LƯU TÊN FULL NAME VÀO PREFERENCES ĐỂ SỬ DỤNG
+                    // 2. Lưu tên User thật từ API
                     String fullName = data.getUser().getFullName();
                     getSharedPreferences("bragbike_prefs", MODE_PRIVATE)
                             .edit()
@@ -93,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                     finish();
 
                 } else {
-                    Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Sai tài khoản hoặc mật khẩu (Lỗi từ API)", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -101,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 btnLogin.setEnabled(true);
                 btnLogin.setText("Đăng nhập");
-                Toast.makeText(LoginActivity.this, "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

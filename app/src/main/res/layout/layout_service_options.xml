@@ -42,7 +42,7 @@
             <ImageView
                 android:layout_width="60dp"
                 android:layout_height="40dp"
-                android:src="@drawable/directions_car_24px"
+                android:src="@drawable/moped_24px"
                 app:tint="@color/primary" />
 
             <LinearLayout
@@ -55,7 +55,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tiết kiệm"
+                    android:text="Brag Bike"
                     android:textColor="@color/slate_900"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -110,7 +110,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thoải mái"
+                    android:text="Brag car"
                     android:textColor="@color/slate_900"
                     android:textSize="16sp"
                     android:textStyle="bold" />

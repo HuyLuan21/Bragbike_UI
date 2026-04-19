@@ -2,14 +2,33 @@
 <resources>
     <!-- Brand -->
     <color name="primary">#EC5B13</color>
+    <color name="primary_container">#FF7A2F</color>
+    <color name="on_primary">#FFFFFF</color>
 
     <!-- Backgrounds -->
     <color name="background_light">#F8F6F6</color>
     <color name="background_dark">#221610</color>
+    <color name="surface">#F8F6F6</color>
+    <color name="on_surface">#0F172A</color>
+    <color name="on_surface_variant">#64748B</color>
+
+    <!-- Containers (Adapted to old theme) -->
+    <color name="surface_container_low">#FFFFFF</color>
+    <color name="surface_container">#F1F5F9</color>
+    <color name="surface_container_high">#E2E8F0</color>
+    <color name="surface_container_highest">#CBD5E1</color>
+
+    <!-- Others -->
+    <color name="tertiary_fixed">#FBB423</color>
+    <color name="on_tertiary_fixed">#372400</color>
+    <color name="error">#EF4444</color>
+    <color name="error_container">#FEE2E2</color>
 
     <!-- Slate scale -->
     <color name="slate_50">#F8FAFC</color>
+    <color name="slate_100">#F1F5F9</color>
     <color name="slate_200">#E2E8F0</color>
+    <color name="slate_300">#CBD5E1</color>
     <color name="slate_400">#94A3B8</color>
     <color name="slate_500">#64748B</color>
     <color name="slate_600">#475569</color>
@@ -18,21 +37,8 @@
 
     <!-- Common -->
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
     <color name="primary_light">#33ec5b13</color>
-    <color name="slate_100">#f1f5f9</color>
     <color name="orange_gradient_start">#ec5b13</color>
     <color name="orange_gradient_end">#fb923c</color>
-
-    <!-- ... các màu cũ ... -->
-    <!-- <color name="primary">#ec5b13</color> -->
-
-    <!-- <color name="background_light">#f8f6f6</color> -->
-
-    <!-- <color name="slate_900">#0f172a</color> -->
-
-    <!-- <color name="slate_500">#64748b</color> -->
-
-    <!-- <color name="slate_400">#94a3b8</color> -->
-
-    <!-- <color name="slate_200">#e2e8f0</color> -->
 </resources>

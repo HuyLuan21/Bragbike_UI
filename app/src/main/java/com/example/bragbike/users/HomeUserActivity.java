@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.bragbike.ActivityHistoryActivity;
+import com.example.bragbike.ProfileActivity;
 import com.example.bragbike.R;
 import com.example.bragbike.api.ApiService;
 import com.example.bragbike.api.RetrofitClient;
@@ -53,11 +54,15 @@ public class HomeUserActivity extends AppCompatActivity {
         btnServiceCar.setOnClickListener(startBooking);
         btnServiceBike.setOnClickListener(startBooking);
 
-        // 2. XỬ LÝ BOTTOM NAVIGATION ĐỂ MỞ TRANG HOẠT ĐỘNG
+        // 2. XỬ LÝ BOTTOM NAVIGATION
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.nav_history) { // ID từ bottom_nav_menu.xml
+            if (id == R.id.nav_history) { 
                 Intent intent = new Intent(HomeUserActivity.this, ActivityHistoryActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (id == R.id.nav_profile) {
+                Intent intent = new Intent(HomeUserActivity.this, ProfileActivity.class);
                 startActivity(intent);
                 return true;
             }

@@ -1,5 +1,6 @@
 package com.example.bragbike;
 
+import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.bragbike.R;
@@ -14,15 +15,25 @@ public class ActivityHistoryActivity extends AppCompatActivity {
 
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         
-        // Sửa lỗi: Đổi nav_activity thành nav_history (khớp với menu/bottom_nav_menu.xml)
+        // Đặt mục Hoạt động là được chọn
         bottomNav.setSelectedItemId(R.id.nav_history);
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.nav_home) {
-                finish(); // Quay lại trang chủ
+                // Thay vì finish(), chúng ta khởi động lại HomeActivity 
+                // với cờ CLEAR_TOP để reset trạng thái thanh điều hướng
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish();
                 return true;
             } else if (id == R.id.nav_history) {
+                return true;
+            } else if (id == R.id.nav_profile) {
+                Intent intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
+                finish();
                 return true;
             }
             return false;
