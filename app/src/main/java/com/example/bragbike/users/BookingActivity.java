@@ -187,10 +187,8 @@ public class BookingActivity extends AppCompatActivity {
         binding.etOrigin.addTextChangedListener(tw);
         binding.etDestination.addTextChangedListener(tw);
 
-        // Lắng nghe nút Enter/Search trên bàn phím
         binding.etDestination.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
-                // Nếu chưa chọn từ list, thử lấy kết quả đầu tiên từ adapter
                 if (suggestionAdapter.getItemCount() > 0) {
                     selectLocation(suggestionAdapter.getFirstFeature());
                 }
@@ -205,11 +203,6 @@ public class BookingActivity extends AppCompatActivity {
 
     private void fetchSuggestions(String query) {
         String token = getString(R.string.mapbox_access_token);
-        if (token.isEmpty()) {
-            Log.e("Booking", "Mapbox token is empty!");
-            return;
-        }
-
         MapboxGeocoding.builder()
                 .accessToken(token)
                 .query(query)
@@ -217,7 +210,7 @@ public class BookingActivity extends AppCompatActivity {
                 .autocomplete(true)
                 .limit(5)
                 .build()
-                .enqueueCall(new Callback<GeocodingResponse>() {
+                .enqueueCall(new retrofit2.Callback<GeocodingResponse>() {
             @Override
             public void onResponse(Call<GeocodingResponse> call, Response<GeocodingResponse> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().features().isEmpty()) {
@@ -229,7 +222,7 @@ public class BookingActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<GeocodingResponse> call, Throwable t) {
-                Log.e("Booking", "Geocoding failure: " + t.getMessage());
+                binding.rvSuggestions.setVisibility(View.GONE);
             }
         });
     }
@@ -254,7 +247,6 @@ public class BookingActivity extends AppCompatActivity {
                         currentDistanceKm = route.get("distance").getAsDouble() / 1000.0;
                         updatePrices(currentDistanceKm);
                         
-                        // HIỆN BOTTOM SHEET VÀ NỘI DUNG CHỌN XE
                         binding.layoutServiceContent.setVisibility(View.VISIBLE);
                         bottomSheetBehavior.setPeekHeight(800); 
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
@@ -263,9 +255,7 @@ public class BookingActivity extends AppCompatActivity {
                 }
             }
             @Override
-            public void onFailure(Call<JsonObject> call, Throwable t) {
-                Toast.makeText(BookingActivity.this, "Không thể tìm thấy tuyến đường", Toast.LENGTH_SHORT).show();
-            }
+            public void onFailure(Call<JsonObject> call, Throwable t) {}
         });
     }
 
@@ -278,7 +268,7 @@ public class BookingActivity extends AppCompatActivity {
                 
                 CameraOptions options = binding.mapView.getMapboxMap().cameraForGeometry(
                         lineString, 
-                        new EdgeInsets(150.0, 100.0, 900.0, 100.0), // Padding dưới lớn để tránh bị BottomSheet che
+                        new EdgeInsets(150.0, 100.0, 900.0, 100.0),
                         null, null);
                 CameraAnimationsUtils.flyTo(binding.mapView.getMapboxMap(), options, null, null);
             }
@@ -288,13 +278,10 @@ public class BookingActivity extends AppCompatActivity {
     private void updatePrices(double distanceInKm) {
         double bikePrice = calculateFareOffline(bikePricing, distanceInKm);
         double carPrice = calculateFareOffline(carPricing, distanceInKm);
-        
         binding.tvBikePrice.setText(String.format(Locale.getDefault(), "%,.0fđ", bikePrice));
         binding.tvCarPrice.setText(String.format(Locale.getDefault(), "%,.0fđ", carPrice));
-        
         binding.tvBikeInfo.setText(String.format(Locale.getDefault(), "Xe máy • %.1f km", distanceInKm));
         binding.tvCarInfo.setText(String.format(Locale.getDefault(), "Ô tô 4 chỗ • %.1f km", distanceInKm));
-        
         updateCurrentFare();
     }
 
@@ -421,9 +408,36 @@ public class BookingActivity extends AppCompatActivity {
             fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
                 if (location != null) {
                     originPoint = Point.fromLngLat(location.getLongitude(), location.getLatitude());
-                    isProgrammaticChange = true;
-                    binding.etOrigin.setText("Vị trí của bạn");
-                    isProgrammaticChange = false;
+                    
+                    String token = getString(R.string.mapbox_access_token);
+                    MapboxGeocoding reverseGeocode = MapboxGeocoding.builder()
+                            .accessToken(token)
+                            .query(originPoint)
+                            .geocodingTypes("address")
+                            .build();
+
+                    reverseGeocode.enqueueCall(new retrofit2.Callback<GeocodingResponse>() {
+                        @Override
+                        public void onResponse(retrofit2.Call<GeocodingResponse> call, retrofit2.Response<GeocodingResponse> response) {
+                            if (response.isSuccessful() && response.body() != null && !response.body().features().isEmpty()) {
+                                CarmenFeature feature = response.body().features().get(0);
+                                isProgrammaticChange = true;
+                                binding.etOrigin.setText(feature.placeName());
+                                isProgrammaticChange = false;
+                            } else {
+                                isProgrammaticChange = true;
+                                binding.etOrigin.setText("Vị trí hiện tại");
+                                isProgrammaticChange = false;
+                            }
+                        }
+                        @Override
+                        public void onFailure(retrofit2.Call<GeocodingResponse> call, Throwable t) {
+                            isProgrammaticChange = true;
+                            binding.etOrigin.setText("Vị trí hiện tại");
+                            isProgrammaticChange = false;
+                        }
+                    });
+
                     moveCameraToPoint(originPoint);
                     updateMarkerPositions();
                 }

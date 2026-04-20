@@ -31,6 +31,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +58,11 @@ public class HomeActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private Handler refreshHandler = new Handler();
     private Runnable refreshRunnable;
+    
+    private List<Integer> ignoredRideIds = new ArrayList<>();
+    private List<Ride> currentAvailableRides = new ArrayList<>();
+    private boolean isShowingRequest = false;
+    private boolean isServerOnline = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,16 +94,25 @@ public class HomeActivity extends AppCompatActivity {
         layoutDriverWaiting = findViewById(R.id.layoutDriverWaiting);
 
         if (switchDriverOnline != null) {
-            switchDriverOnline.setOnClickListener(v -> {
-                if (switchDriverOnline.isChecked()) startDriverMode();
-                else stopDriverMode();
-            });
+            switchDriverOnline.setOnClickListener(v -> handleDriverToggleClick());
         }
 
-        View.OnClickListener startBooking = v -> startActivity(new Intent(HomeActivity.this, BookingActivity.class));
+        View.OnClickListener startBooking = v -> {
+            Intent intent = new Intent(HomeActivity.this, BookingActivity.class);
+            startActivity(intent);
+        };
         if (cvSearch != null) cvSearch.setOnClickListener(startBooking);
         if (btnServiceCar != null) btnServiceCar.setOnClickListener(startBooking);
         if (btnServiceBike != null) btnServiceBike.setOnClickListener(startBooking);
+    }
+
+    private void handleDriverToggleClick() {
+        boolean isChecked = switchDriverOnline.isChecked();
+        if (isChecked) {
+            startDriverMode();
+        } else {
+            stopDriverMode();
+        }
     }
 
     private void startDriverMode() {
@@ -109,7 +124,6 @@ public class HomeActivity extends AppCompatActivity {
 
         fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
             if (location != null) {
-                Log.d("DRIVER_LOG", "GPS hiện tại: " + location.getLatitude() + "," + location.getLongitude());
                 updateLocationAndStatus(location.getLatitude(), location.getLongitude(), true);
             } else {
                 Toast.makeText(this, "Vị trí không xác định. Hãy mở bản đồ!", Toast.LENGTH_SHORT).show();
@@ -119,24 +133,21 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void stopDriverMode() {
-        if (refreshHandler != null && refreshRunnable != null) refreshHandler.removeCallbacks(refreshRunnable);
+        isShowingRequest = false;
+        stopAutoRefresh();
         updateLocationAndStatus(0, 0, false);
     }
 
-    private void updateLocationAndStatus(double lat, double lng, boolean online) {
+    private void updateLocationAndStatus(double lat, double lng, boolean targetOnline) {
         ApiService api = RetrofitClient.getInstance(this).getApiService();
-        if (online) {
+        if (targetOnline) {
             Map<String, Object> body = new HashMap<>();
             body.put("lat", lat);
             body.put("lng", lng);
-            body.put("latitude", lat);
-            body.put("longitude", lng);
-
             api.updateLocation(body).enqueue(new Callback<Map<String, Object>>() {
                 @Override
                 public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                    Log.d("DRIVER_LOG", "Cập nhật GPS thành công.");
-                    toggleOnlineStatusOnServer(true);
+                    syncAndToggleOnline(true);
                 }
                 @Override
                 public void onFailure(Call<Map<String, Object>> call, Throwable t) {
@@ -144,77 +155,129 @@ public class HomeActivity extends AppCompatActivity {
                 }
             });
         } else {
-            toggleOnlineStatusOnServer(false);
+            syncAndToggleOnline(false);
         }
     }
 
-    private void toggleOnlineStatusOnServer(boolean online) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("is_online", online);
+    private void syncAndToggleOnline(boolean targetOnline) {
         ApiService api = RetrofitClient.getInstance(this).getApiService();
-        api.toggleOnline(body).enqueue(new Callback<Map<String, Object>>() {
+        api.getDriverStats().enqueue(new Callback<Map<String, Object>>() {
             @Override
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                if (response.isSuccessful()) {
-                    Log.d("DRIVER_LOG", "Driver Online: " + online);
-                    updateDriverUI(online);
-                    if (online) startAutoRefresh();
-                } else {
-                    switchDriverOnline.setChecked(!online);
-                    Log.e("DRIVER_LOG", "Lỗi bật Online: " + response.code());
+                if (response.isSuccessful() && response.body() != null) {
+                    Object onlineObj = response.body().get("is_online");
+                    isServerOnline = false;
+                    if (onlineObj instanceof Boolean) isServerOnline = (Boolean) onlineObj;
+                    else if (onlineObj instanceof Number) isServerOnline = ((Number) onlineObj).intValue() == 1;
+
+                    if (isServerOnline != targetOnline) {
+                        api.toggleOnline(new HashMap<>()).enqueue(new Callback<Map<String, Object>>() {
+                            @Override
+                            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                                if (response.isSuccessful() && response.body() != null) {
+                                    updateDriverUI(targetOnline);
+                                    if (targetOnline) {
+                                        refreshHandler.postDelayed(() -> fetchAvailableRides(), 2000);
+                                        startAutoRefresh();
+                                    }
+                                }
+                            }
+                            @Override
+                            public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                                switchDriverOnline.setChecked(isServerOnline);
+                            }
+                        });
+                    } else {
+                        updateDriverUI(targetOnline);
+                        if (targetOnline) startAutoRefresh();
+                    }
                 }
             }
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable t) { switchDriverOnline.setChecked(!online); }
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
         });
     }
 
     private void startAutoRefresh() {
+        stopAutoRefresh();
         refreshRunnable = new Runnable() {
             @Override
             public void run() {
-                fetchAvailableRides();
-                refreshHandler.postDelayed(this, 7000); 
+                if (switchDriverOnline.isChecked() && !isShowingRequest) {
+                    fetchAvailableRides();
+                    refreshHandler.postDelayed(this, 10000); 
+                }
             }
         };
-        refreshHandler.post(refreshRunnable);
+        refreshHandler.postDelayed(refreshRunnable, 10000);
+    }
+
+    private void stopAutoRefresh() {
+        if (refreshRunnable != null) {
+            refreshHandler.removeCallbacks(refreshRunnable);
+            refreshRunnable = null;
+        }
     }
 
     private void fetchAvailableRides() {
+        if (isShowingRequest || !switchDriverOnline.isChecked()) return;
+
         ApiService api = RetrofitClient.getInstance(this).getApiService();
         api.getAvailableRides().enqueue(new Callback<List<Ride>>() {
             @Override
             public void onResponse(Call<List<Ride>> call, Response<List<Ride>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Ride> rides = response.body();
-                    Log.d("DRIVER_LOG", "Số cuốc tìm thấy: " + rides.size());
-                    if (!rides.isEmpty()) {
-                        openRideRequestPage(rides.get(0));
-                    }
-                } else if (response.code() == 403) {
-                    Log.e("DRIVER_LOG", "LỖI 403: Bạn không có quyền lấy cuốc xe. Hãy đăng nhập lại!");
+                    currentAvailableRides = response.body();
+                    showNextAvailableRide();
                 }
             }
             @Override
-            public void onFailure(Call<List<Ride>> call, Throwable t) {
-                Log.e("DRIVER_LOG", "Lỗi kết nối khi quét chuyến", t);
-            }
+            public void onFailure(Call<List<Ride>> call, Throwable t) {}
         });
     }
 
+    private void showNextAvailableRide() {
+        if (isShowingRequest || currentAvailableRides.isEmpty() || !switchDriverOnline.isChecked()) return;
+        Ride nextRide = null;
+        for (Ride r : currentAvailableRides) {
+            if (!ignoredRideIds.contains(r.getId())) {
+                nextRide = r;
+                break;
+            }
+        }
+        if (nextRide != null) openRideRequestPage(nextRide);
+    }
+
     private void openRideRequestPage(Ride ride) {
+        if (isShowingRequest) return;
+        isShowingRequest = true;
         Intent intent = new Intent(this, RideRequestActivity.class);
         intent.putExtra(RideRequestActivity.EXTRA_RIDE_ID, ride.getId());
         intent.putExtra(RideRequestActivity.EXTRA_FARE, ride.getFare());
         intent.putExtra(RideRequestActivity.EXTRA_PICKUP, ride.getPickupAddress());
         intent.putExtra(RideRequestActivity.EXTRA_DROPOFF, ride.getDropoffAddress());
         intent.putExtra(RideRequestActivity.EXTRA_VEHICLE, ride.getVehicleType());
-        startActivity(intent);
-        
-        if (refreshHandler != null) refreshHandler.removeCallbacks(refreshRunnable);
+        startActivityForResult(intent, 2000);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        isShowingRequest = false;
+        if (requestCode == 2000) {
+            if (resultCode == RESULT_CANCELED && data != null) {
+                int declinedId = data.getIntExtra("declined_ride_id", -1);
+                if (declinedId != -1) {
+                    ignoredRideIds.add(declinedId);
+                    showNextAvailableRide(); 
+                }
+            }
+            if (switchDriverOnline.isChecked()) startAutoRefresh();
+        }
     }
 
     private void updateDriverUI(boolean online) {
+        if (switchDriverOnline != null) switchDriverOnline.setChecked(online);
         if (online) {
             tvDriverStatus.setText("Đang trực tuyến");
             tvDriverStatus.setTextColor(getResources().getColor(R.color.primary));
@@ -240,7 +303,11 @@ public class HomeActivity extends AppCompatActivity {
                     ride.setPickupAddress(data.optString("pickup_address", "N/A"));
                     ride.setDropoffAddress(data.optString("drop_address", "N/A"));
                     ride.setVehicleType(data.optString("vehicle_type", "MOTORBIKE"));
-                    openRideRequestPage(ride);
+                    
+                    if (!ignoredRideIds.contains(ride.getId()) && !isShowingRequest && switchDriverOnline.isChecked()) {
+                        currentAvailableRides.add(0, ride);
+                        showNextAvailableRide();
+                    }
                 } catch (Exception e) { Log.e("SOCKET", "Error", e); }
             });
         });
@@ -258,12 +325,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() { super.onResume(); loadUserProfile(); }
+    protected void onResume() { 
+        super.onResume(); 
+        loadUserProfile(); 
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (refreshHandler != null && refreshRunnable != null) refreshHandler.removeCallbacks(refreshRunnable);
+        stopAutoRefresh();
     }
 
     private void loadUserProfile() {
@@ -274,22 +344,52 @@ public class HomeActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     User user = response.body();
                     tvUserName.setText("Chào, " + user.getFullName() + "!");
-                    Log.d("DRIVER_LOG", "Quyền hiện tại trong máy: " + user.getRole());
                     
-                    if (cvDriverToggle != null) {
-                        cvDriverToggle.setVisibility("DRIVER".equals(user.getRole()) ? View.VISIBLE : View.GONE);
-                    }
-
+                    // Fix lỗi mất Avatar
                     String avatarUrl = user.getAvatarUrl();
                     if (avatarUrl != null && !avatarUrl.isEmpty()) {
-                        if (avatarUrl.contains("dicebear.com") && avatarUrl.contains("/svg")) avatarUrl = avatarUrl.replace("/svg", "/png");
+                        if (avatarUrl.contains("dicebear.com") && avatarUrl.contains("/svg")) {
+                            avatarUrl = avatarUrl.replace("/svg", "/png");
+                        }
                         String fullUrl = avatarUrl.startsWith("http") ? avatarUrl : BuildConfig.BASE_URL + avatarUrl;
-                        Glide.with(HomeActivity.this).load(fullUrl).circleCrop().into(ivAvatar);
+                        Glide.with(HomeActivity.this)
+                                .load(fullUrl)
+                                .placeholder(R.drawable.bg_badge_pro)
+                                .circleCrop()
+                                .into(ivAvatar);
+                    }
+
+                    if (cvDriverToggle != null) {
+                        boolean isDriver = "DRIVER".equals(user.getRole());
+                        cvDriverToggle.setVisibility(isDriver ? View.VISIBLE : View.GONE);
+                        // Chỉ đồng bộ trạng thái nút, KHÔNG tự động bật quét chuyến
+                        if (isDriver) syncDriverStatusUIOnly(); 
                     }
                 }
             }
             @Override
             public void onFailure(Call<User> call, Throwable t) { }
+        });
+    }
+
+    private void syncDriverStatusUIOnly() {
+        ApiService api = RetrofitClient.getInstance(this).getApiService();
+        api.getDriverStats().enqueue(new Callback<Map<String, Object>>() {
+            @Override
+            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Object onlineObj = response.body().get("is_online");
+                    boolean isOnline = false;
+                    if (onlineObj instanceof Boolean) isOnline = (Boolean) onlineObj;
+                    else if (onlineObj instanceof Number) isOnline = ((Number) onlineObj).intValue() == 1;
+                    
+                    // Cập nhật UI nhưng không tự động bật loop nếu người dùng vừa vào trang Home
+                    if (switchDriverOnline != null) switchDriverOnline.setChecked(isOnline);
+                    updateDriverUI(isOnline);
+                }
+            }
+            @Override
+            public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
         });
     }
 }

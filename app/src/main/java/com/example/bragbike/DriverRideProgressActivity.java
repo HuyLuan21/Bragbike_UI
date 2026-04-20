@@ -67,7 +67,7 @@ public class DriverRideProgressActivity extends AppCompatActivity {
     
     private MapboxService mapboxService;
     private FusedLocationProviderClient fusedLocationClient;
-    private Point pickupPoint, dropoffPoint;
+    private Point pickupPoint, dropoffPoint, lastKnownSimPoint;
 
     // Simulation Variables
     private Handler simHandler = new Handler(Looper.getMainLooper());
@@ -123,7 +123,6 @@ public class DriverRideProgressActivity extends AppCompatActivity {
     }
 
     private void initMarkerLayers(Style style) {
-        // Driver Simulated Puck (Dấu chấm màu hồng cho tài xế)
         SourceUtils.addSource(style, new GeoJsonSource.Builder(DRIVER_SIM_SOURCE_ID).build());
         CircleLayer driverLayer = new CircleLayer("driver-sim-layer", DRIVER_SIM_SOURCE_ID);
         driverLayer.circleColor(Color.parseColor("#FF4081"));
@@ -174,13 +173,35 @@ public class DriverRideProgressActivity extends AppCompatActivity {
 
     private void updateNavigation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) return;
-        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
-            if (location != null) {
-                Point driverPoint = Point.fromLngLat(location.getLongitude(), location.getLatitude());
-                Point target = (currentStatus.contains("ACCEPTED") || currentStatus.equals("ON_THE_WAY")) ? pickupPoint : dropoffPoint;
-                if (target != null) drawRoute(driverPoint, target);
-            }
-        });
+        
+        if (lastKnownSimPoint != null) {
+            performNavigation(lastKnownSimPoint);
+        } else {
+            // Lấy vị trí thực tế của máy ảo thay vì fix cứng tọa độ
+            fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                Point startPoint;
+                if (location != null) {
+                    startPoint = Point.fromLngLat(location.getLongitude(), location.getLatitude());
+                } else {
+                    // Fallback về tọa độ của bạn nếu không lấy được GPS (20.9422, 106.0600)
+                    startPoint = Point.fromLngLat(106.05999967406191, 20.94226657707493);
+                }
+                performNavigation(startPoint);
+            });
+        }
+    }
+
+    private void performNavigation(Point startPoint) {
+        Point targetPoint = null;
+        if (currentStatus.contains("ACCEPTED") || currentStatus.equals("ON_THE_WAY")) {
+            targetPoint = pickupPoint; // Chỉ đường A -> B (Đón khách)
+        } else if (currentStatus.equals("IN_PROGRESS")) {
+            targetPoint = dropoffPoint; // Chỉ đường B -> C (Chở khách)
+        }
+
+        if (targetPoint != null && startPoint != null) {
+            drawRoute(startPoint, targetPoint);
+        }
     }
 
     private void drawRoute(Point origin, Point destination) {
@@ -199,12 +220,13 @@ public class DriverRideProgressActivity extends AppCompatActivity {
                         GeoJsonSource source = (GeoJsonSource) SourceUtils.getSource(style, ROUTE_SOURCE_ID);
                         if (source != null) {
                             source.geometry(lineString);
-                            CameraOptions options = mapView.getMapboxMap().cameraForGeometry(lineString, new EdgeInsets(100.0, 100.0, 400.0, 100.0), null, null);
+                            CameraOptions options = mapView.getMapboxMap().cameraForGeometry(lineString, new EdgeInsets(100.0, 100.0, 500.0, 100.0), null, null);
                             CameraAnimationsUtils.flyTo(mapView.getMapboxMap(), options, null, null);
                             
-                            // TỰ ĐỘNG BẮT ĐẦU GIẢ LẬP
-                            if (!isSimulating && routePoints != null && routePoints.size() > 1) {
-                                startMovementSimulation();
+                            if (!isSimulating && routePoints != null && !routePoints.isEmpty()) {
+                                if (!currentStatus.equals("ARRIVED")) {
+                                    startMovementSimulation();
+                                }
                             }
                         }
                     });
@@ -225,14 +247,14 @@ public class DriverRideProgressActivity extends AppCompatActivity {
             public void run() {
                 if (currentSimIndex < routePoints.size()) {
                     Point nextPoint = routePoints.get(currentSimIndex);
+                    lastKnownSimPoint = nextPoint; 
                     updatePositionUI(nextPoint);
                     syncPositionWithServer(nextPoint);
                     
-                    currentSimIndex += 1; // Nhích từng điểm cho mượt
-                    simHandler.postDelayed(this, 800); // Tốc độ di chuyển
+                    currentSimIndex += 1;
+                    simHandler.postDelayed(this, 1000); 
                 } else {
                     isSimulating = false;
-                    Toast.makeText(DriverRideProgressActivity.this, "Đã đến đích!", Toast.LENGTH_SHORT).show();
                 }
             }
         };
@@ -245,7 +267,6 @@ public class DriverRideProgressActivity extends AppCompatActivity {
             if (source != null) source.geometry(point);
         });
 
-        // Tính toán góc xoay dựa trên điểm trước đó
         double bearing = 0.0;
         if (currentSimIndex > 0 && currentSimIndex < routePoints.size()) {
             bearing = TurfMeasurement.bearing(routePoints.get(currentSimIndex - 1), point);
@@ -255,7 +276,7 @@ public class DriverRideProgressActivity extends AppCompatActivity {
                 .center(point)
                 .zoom(16.5)
                 .bearing(bearing)
-                .pitch(45.0) 
+                .pitch(45.0)
                 .build();
         CameraAnimationsUtils.flyTo(mapView.getMapboxMap(), cameraOptions, null, null);
     }
@@ -301,10 +322,9 @@ public class DriverRideProgressActivity extends AppCompatActivity {
     }
 
     private void handleMainAction() {
-        if (isSimulating) {
-            simHandler.removeCallbacks(simRunnable);
-            isSimulating = false;
-        }
+        if (simHandler != null) simHandler.removeCallbacks(simRunnable);
+        isSimulating = false;
+
         ApiService api = RetrofitClient.getInstance(this).getApiService();
         Call<Map<String, Object>> call = null;
         if (currentStatus.contains("ACCEPTED") || currentStatus.equals("ON_THE_WAY")) call = api.pickupRide(rideId);
@@ -315,7 +335,9 @@ public class DriverRideProgressActivity extends AppCompatActivity {
             call.enqueue(new Callback<Map<String, Object>>() {
                 @Override
                 public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
-                    if (response.isSuccessful()) loadRideDetails(); 
+                    if (response.isSuccessful()) {
+                        loadRideDetails(); 
+                    }
                 }
                 @Override public void onFailure(Call<Map<String, Object>> call, Throwable t) {}
             });
